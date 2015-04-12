@@ -213,6 +213,18 @@ proc matchesCrLf(pattern: Regex): bool =
   of -2: return true
   of -1: return true
   else: return false
+
+
+proc captureSeqLen(pattern: Regex): tuple[vecCints, vecLen: int] =
+  # See PCRE man pages.
+  # 2x capture count to make room for start-end pairs
+  # 1x capture count as slack space for PCRE
+  let vecsize = (pattern.captureCount() + 1) * 3
+  # div 2 because each element is 2 cints long
+  return (vecsize, (vecsize div 2) + 1)
+
+proc newCaptureSeq(pattern: Regex): seq[Slice[cint]] =
+  result = newSeq[Slice[cint]](pattern.captureSeqLen.vecLen)
 # }}}
 
 # Capture accessors {{{
@@ -431,15 +443,12 @@ proc re*(pattern: string, options = ""): Regex = initRegex(pattern, options)
 # }}}
 
 # Operations {{{
-proc matchImpl(str: string, pattern: Regex, start, endpos: int, flags: int): Option[RegexMatch] =
-  var myResult = RegexMatch(pattern : pattern, str : str)
-  # See PCRE man pages.
-  # 2x capture count to make room for start-end pairs
-  # 1x capture count as slack space for PCRE
-  let vecsize = (pattern.captureCount() + 1) * 3
-  # div 2 because each element is 2 cints long
-  myResult.pcreMatchBounds = newSeq[Slice[cint]](ceil(vecsize / 2).int)
-  myResult.pcreMatchBounds.setLen(vecsize div 3)
+proc matchImpl(str: string,
+               pattern: Regex,
+               start, endpos: int,
+               flags: int,
+               matchBuffer: seq[Slice[cint]]): Option[RegexMatch] =
+  var myResult = RegexMatch(pattern : pattern, str : str, pcreMatchBounds : matchBuffer)
 
   let strlen = if endpos == int.high: str.len else: endpos+1
   doAssert(strlen <= str.len)  # don't want buffer overflows
@@ -451,7 +460,7 @@ proc matchImpl(str: string, pattern: Regex, start, endpos: int, flags: int): Opt
                           cint(start),
                           cint(flags),
                           cast[ptr cint](addr myResult.pcreMatchBounds[0]),
-                          cint(vecsize))
+                          cint(pattern.captureSeqLen.vecCints))
   if execRet >= 0:
     return Some(myResult)
   elif execRet == pcre.ERROR_NOMATCH:
@@ -463,7 +472,7 @@ proc match*(str: string, pattern: Regex, start = 0, endpos = int.high): Option[R
   ## Like ```find(...)`` <#proc-find>`__, but anchored to the start of the
   ## string. This means that ``"foo".match(re"f") == true``, but
   ## ``"foo".match(re"o") == false``.
-  return str.matchImpl(pattern, start, endpos, pcre.ANCHORED)
+  return str.matchImpl(pattern, start, endpos, pcre.ANCHORED, pattern.newCaptureSeq())
 
 iterator findIter*(str: string, pattern: Regex, start = 0, endpos = int.high): RegexMatch =
   ## Works the same as ```find(...)`` <#proc-find>`__, but finds every
@@ -491,7 +500,7 @@ iterator findIter*(str: string, pattern: Regex, start = 0, endpos = int.high): R
       # 0-len match
       flags = pcre.NOTEMPTY_ATSTART or pcre.ANCHORED
 
-    match = str.matchImpl(pattern, offset, endpos, flags)
+    match = str.matchImpl(pattern, offset, endpos, flags, pattern.newCaptureSeq())
 
     if match.isNone:
       # either the end of the input or the string
@@ -526,7 +535,7 @@ proc find*(str: string, pattern: Regex, start = 0, endpos = int.high): Option[Re
   ## ``endpos``
   ##     The maximum index for a match; ``int.high`` means the end of the
   ##     string, otherwise it’s an inclusive upper bound.
-  return str.matchImpl(pattern, start, endpos, 0)
+  return str.matchImpl(pattern, start, endpos, 0, pattern.newCaptureSeq)
 
 proc findAll*(str: string, pattern: Regex, start = 0, endpos = int.high): seq[string] =
   result = @[]
