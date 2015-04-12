@@ -447,7 +447,7 @@ proc matchImpl(str: string,
                pattern: Regex,
                start, endpos: int,
                flags: int,
-               matchBuffer: seq[Slice[cint]]): Option[RegexMatch] =
+               matchBuffer: var seq[Slice[cint]]): Option[RegexMatch] =
   var myResult = RegexMatch(pattern : pattern, str : str, pcreMatchBounds : matchBuffer)
 
   let strlen = if endpos == int.high: str.len else: endpos+1
@@ -472,7 +472,8 @@ proc match*(str: string, pattern: Regex, start = 0, endpos = int.high): Option[R
   ## Like ```find(...)`` <#proc-find>`__, but anchored to the start of the
   ## string. This means that ``"foo".match(re"f") == true``, but
   ## ``"foo".match(re"o") == false``.
-  return str.matchImpl(pattern, start, endpos, pcre.ANCHORED, pattern.newCaptureSeq())
+  var captureSeq = pattern.newCaptureSeq()
+  return str.matchImpl(pattern, start, endpos, pcre.ANCHORED, captureSeq)
 
 iterator findIter*(str: string, pattern: Regex, start = 0, endpos = int.high): RegexMatch =
   ## Works the same as ```find(...)`` <#proc-find>`__, but finds every
@@ -492,6 +493,7 @@ iterator findIter*(str: string, pattern: Regex, start = 0, endpos = int.high): R
 
   var offset = start
   var match: Option[RegexMatch]
+  var captureBuffer = pattern.newCaptureSeq()
   while true:
     var flags = 0
 
@@ -500,7 +502,7 @@ iterator findIter*(str: string, pattern: Regex, start = 0, endpos = int.high): R
       # 0-len match
       flags = pcre.NOTEMPTY_ATSTART or pcre.ANCHORED
 
-    match = str.matchImpl(pattern, offset, endpos, flags, pattern.newCaptureSeq())
+    match = str.matchImpl(pattern, offset, endpos, flags, captureBuffer)
 
     if match.isNone:
       # either the end of the input or the string
@@ -535,7 +537,8 @@ proc find*(str: string, pattern: Regex, start = 0, endpos = int.high): Option[Re
   ## ``endpos``
   ##     The maximum index for a match; ``int.high`` means the end of the
   ##     string, otherwise it’s an inclusive upper bound.
-  return str.matchImpl(pattern, start, endpos, 0, pattern.newCaptureSeq)
+  var captureSeq = pattern.newCaptureSeq()
+  return str.matchImpl(pattern, start, endpos, 0, captureSeq)
 
 proc findAll*(str: string, pattern: Regex, start = 0, endpos = int.high): seq[string] =
   result = @[]
