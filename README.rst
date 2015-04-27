@@ -30,21 +30,20 @@ By default, NRE compiles it’s own PCRE. If this is undesirable, pass
 ``-d:pcreDynlib`` to use whatever dynamic library is available on the
 system. This may have unexpected consequences if the dynamic library
 doesn’t have certain features enabled.
-
 Types
 -----
-
 ``type Regex* = ref object``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Represents the pattern that things are matched against, constructed with
-``re(string, string)``. Examples: ``re"foo"``, ``re(r"foo # comment",
-"x<anycrlf>")``, ``re"(?x)(*ANYCRLF)foo # comment"``. For more details
-on the leading option groups, see the `Option
-Setting <http://man7.org/linux/man-pages/man3/pcresyntax.3.html#OPTION_SETTING>`__
-and the `Newline
-Convention <http://man7.org/linux/man-pages/man3/pcresyntax.3.html#NEWLINE_CONVENTION>`__
-sections of the `PCRE syntax
-manual <http://man7.org/linux/man-pages/man3/pcresyntax.3.html>`__.
+``re(string)`` and parameters passed with ``opts(Regex, string).
+Examples: ``re"foo"``, ``re"foo # comment".opts"x<anycrlf>"``,
+``re"(?x)(*ANYCRLF)foo # comment"``. For more details on the leading
+option groups, see the `Option Setting
+<http://man7.org/linux/man-pages/man3/pcresyntax.3.html#OPTION_SETTING>`__
+and the `Newline Convention
+<http://man7.org/linux/man-pages/man3/pcresyntax.3.html#NEWLINE_CONVENTION>`__
+sections of the `PCRE syntax manual
+<http://man7.org/linux/man-pages/man3/pcresyntax.3.html>`__.
 
 ``pattern: string``
     the string that was used to create the pattern.
@@ -59,26 +58,25 @@ manual <http://man7.org/linux/man-pages/man3/pcresyntax.3.html>`__.
 Flags
 .....
 
--  ``8`` - treat both the pattern and subject as UTF8
--  ``9`` - prevents the pattern from being interpreted as UTF, no matter
+-  ``8``, ``u``, ``<utf8>`` - treat both the pattern and subject as UTF8
+-  ``9``, ``<no_utf8>`` - prevents the pattern from being interpreted as UTF, no matter
    what
--  ``A`` - as if the pattern had a ``^`` at the beginning
--  ``E`` - DOLLAR\_ENDONLY
--  ``f`` - fails if there is not a match on the first line
--  ``i`` - case insensitive
--  ``m`` - multi-line, ``^`` and ``$`` match the beginning and end of
+-  ``A``, ``<anchored>`` - as if the pattern had a ``^`` at the beginning
+-  ``E``, ``<dollar_endonly>`` - DOLLAR\_ENDONLY
+-  ``f``, ``<firstline>`` - fails if there is not a match on the first line
+-  ``i``, ``<case_insensitive>`` - case insensitive
+-  ``m``, ``<multiline>`` - multi-line, ``^`` and ``$`` match the beginning and end of
    lines, not of the subject string
--  ``N`` - turn off auto-capture, ``(?foo)`` is necessary to capture.
--  ``s`` - ``.`` matches newline
--  ``U`` - expressions are not greedy by default. ``?`` can be added to
+-  ``N``, ``<no_auto_capture>`` - turn off auto-capture, ``(?foo)`` is necessary to capture.
+-  ``s``, ``<dotall>`` - ``.`` matches newline
+-  ``U``, ``<ungreedy>`` - expressions are not greedy by default. ``?`` can be added to
    a qualifier to make it greedy.
--  ``u`` - same as ``8``
--  ``W`` - Unicode character properties; ``\w`` matches ``к``.
--  ``X`` - "Extra", character escapes without special meaning (``\w``
+-  ``W``, ``<ucp>`` - Unicode character properties; ``\w`` matches ``к``.
+-  ``X``, ``<extra>`` - "Extra", character escapes without special meaning (``\w``
    vs. ``\a``) are errors
--  ``x`` - extended, comments (``#``) and newlines are ignored
+-  ``x``, ``<extended>`` - extended, comments (``#``) and newlines are ignored
    (extended)
--  ``Y`` - pcre.NO\_START\_OPTIMIZE,
+-  ``Y``, ``<no_start_optimize>`` - pcre.NO\_START\_OPTIMIZE,
 -  ``<cr>`` - newlines are separated by ``\r``
 -  ``<crlf>`` - newlines are separated by ``\r\n`` (Windows default)
 -  ``<lf>`` - newlines are separated by ``\n`` (UNIX default)
@@ -161,7 +159,6 @@ code.
 
 Operations
 ----------
-
 ``proc match*(str: string, pattern: Regex, start = 0, endpos = int.high): Option[RegexMatch]``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Like ```find(...)`` <#proc-find>`__, but anchored to the start of the
@@ -244,3 +241,5 @@ If a given capture is missing, a ``ValueError`` exception is thrown.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Escapes the string so it doesn’t match any special characters.
 Incompatible with the Extra flag (``X``).
+
+

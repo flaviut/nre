@@ -2,8 +2,8 @@ import unittest, nre, strutils, optional_t.nonstrict
 
 suite "Misc tests":
   test "unicode":
-    check("".find(re("", "8")).match == "")
-    check("перевірка".replace(re(r"\w", "uW"), "") == "")
+    check("".find(re"".opts"8").match == "")
+    check("перевірка".replace(re"\w".opts"uW", "") == "")
 
   test "empty or non-empty match":
     check("abc".findall(re"|.").join(":") == ":a::b::c:")

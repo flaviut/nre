@@ -4,9 +4,9 @@ include nre
 suite "string splitting":
   test "splitting strings":
     check("1 2 3 4 5 6 ".split(re" ") == @["1", "2", "3", "4", "5", "6", ""])
-    check("1  2  ".split(re(" ")) == @["1", "", "2", "", ""])
-    check("1 2".split(re(" ")) == @["1", "2"])
-    check("foo".split(re("foo")) == @["", ""])
+    check("1  2  ".split(re" ") == @["1", "", "2", "", ""])
+    check("1 2".split(re" ") == @["1", "2"])
+    check("foo".split(re"foo") == @["", ""])
     check("".split(re"foo") == @[""])
 
   test "captured patterns":
@@ -21,8 +21,8 @@ suite "string splitting":
     check("12345".split(re("")) == @["1", "2", "3", "4", "5"])
     check("".split(re"") == newSeq[string]())
     check("word word".split(re"\b") == @["word", " ", "word"])
-    check("word\r\lword".split(re(r"$", "m<anycrlf>")) == @["word", "\r\lword"])
-    check("слово слово".split(re(r"(\b)", "uW")) == @["", "слово", "", " ", "", "слово", ""])
+    check("word\r\lword".split(re"$".opts"m<anycrlf>") == @["word", "\r\lword"])
+    check("слово слово".split(re"(\b)".opts"uW") == @["", "слово", "", " ", "", "слово", ""])
 
   test "perl split tests":
     check("forty-two"                    .split(re"")      .join(",") == "f,o,r,t,y,-,t,w,o")

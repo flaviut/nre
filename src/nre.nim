@@ -47,14 +47,15 @@ from unicode import runeLenAt
 type
   Regex* = ref object
     ## Represents the pattern that things are matched against, constructed with
-    ## ``re(string, string)``. Examples: ``re"foo"``, ``re(r"foo # comment",
-    ## "x<anycrlf>")``, ``re"(?x)(*ANYCRLF)foo # comment"``. For more details
-    ## on the leading option groups, see the `Option
-    ## Setting <http://man7.org/linux/man-pages/man3/pcresyntax.3.html#OPTION_SETTING>`__
-    ## and the `Newline
-    ## Convention <http://man7.org/linux/man-pages/man3/pcresyntax.3.html#NEWLINE_CONVENTION>`__
-    ## sections of the `PCRE syntax
-    ## manual <http://man7.org/linux/man-pages/man3/pcresyntax.3.html>`__.
+    ## ``re(string)`` and parameters passed with ``opts(Regex, string).
+    ## Examples: ``re"foo"``, ``re"foo # comment".opts"x<anycrlf>"``,
+    ## ``re"(?x)(*ANYCRLF)foo # comment"``. For more details on the leading
+    ## option groups, see the `Option Setting
+    ## <http://man7.org/linux/man-pages/man3/pcresyntax.3.html#OPTION_SETTING>`__
+    ## and the `Newline Convention
+    ## <http://man7.org/linux/man-pages/man3/pcresyntax.3.html#NEWLINE_CONVENTION>`__
+    ## sections of the `PCRE syntax manual
+    ## <http://man7.org/linux/man-pages/man3/pcresyntax.3.html>`__.
     ##
     ## ``pattern: string``
     ##     the string that was used to create the pattern.
@@ -427,7 +428,8 @@ proc initRegex(pattern: string, options: string): Regex =
 
   result.captureNameToId = result.getNameToNumberTable()
 
-proc re*(pattern: string, options = ""): Regex = initRegex(pattern, options)
+proc re*(pattern: string): Regex = initRegex(pattern, "")
+proc opts*(pattern: Regex, options: string): Regex = initRegex(pattern.pattern, options)
 # }}}
 
 # Operations {{{
