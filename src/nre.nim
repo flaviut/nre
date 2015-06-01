@@ -129,18 +129,18 @@ type
     ##     the whole match is returned. If the given capture was not matched,
     ##     ``nil`` is returned.
     ##
-    ##     -  ``"abc".match(re"(\w)").captures[0] == "a"``
-    ##     -  ``"abc".match(re"(?<letter>\w)").captures["letter"] == "a"``
-    ##     -  ``"abc".match(re"(\w)\w").captures[-1] == "ab"``
+    ##     -  ``"abc".match(re"(\w)").get.captures[0] == "a"``
+    ##     -  ``"abc".match(re"(?<letter>\w)").get.captures["letter"] == "a"``
+    ##     -  ``"abc".match(re"(\w)\w").get.captures[-1] == "ab"``
     ##
     ## ``captureBounds[]: Option[Slice[int]]``
     ##     gets the bounds of the given capture according to the same rules as
     ##     the above. If the capture is not filled, then ``None`` is returned.
     ##     The bounds are both inclusive.
     ##
-    ##     -  ``"abc".match(re"(\w)").captureBounds[0] == 0 .. 0``
-    ##     -  ``"abc".match(re"").captureBounds[-1] == 0 .. -1``
-    ##     -  ``"abc".match(re"abc").captureBounds[-1] == 0 .. 2``
+    ##     -  ``"abc".match(re"(\w)").get.captureBounds[0] == 0 .. 0``
+    ##     -  ``"abc".match(re"").get.captureBounds[-1] == 0 .. -1``
+    ##     -  ``"abc".match(re"abc").get.captureBounds[-1] == 0 .. 2``
     ##
     ## ``match: string``
     ##     the full text of the match.
@@ -470,13 +470,13 @@ proc matchImpl(str: string, pattern: Regex, start, endpos: int, flags: int): Opt
 
 proc match*(str: string, pattern: Regex, start = 0, endpos = int.high): Option[RegexMatch] =
   ## Like ```find(...)`` <#proc-find>`__, but anchored to the start of the
-  ## string. This means that ``"foo".match(re"f") == true``, but
-  ## ``"foo".match(re"o") == false``.
+  ## string. This means that ``"foo".match(re"f").isSome == true``, but
+  ## ``"foo".match(re"o").isSome == false``.
   return str.matchImpl(pattern, start, endpos, pcre.ANCHORED)
 
 iterator findIter*(str: string, pattern: Regex, start = 0, endpos = int.high): RegexMatch =
   ## Works the same as ```find(...)`` <#proc-find>`__, but finds every
-  ## non-overlapping match. ``"2222".find(re"22")`` is ``"22", "22"``, not
+  ## non-overlapping match. ``"2222".findIter(re"22")`` is ``"22", "22"``, not
   ## ``"22", "22", "22"``.
   ##
   ## Arguments are the same as ```find(...)`` <#proc-find>`__
