@@ -1,3 +1,10 @@
+UNMAINTAINED
+============
+
+`Use nre from the stdlib`_
+
+.. _`Use nre from the stdlib`: https://github.com/nim-lang/Nim/blob/master/lib/impure/nre.nim
+
 What is NRE?
 ============
 
