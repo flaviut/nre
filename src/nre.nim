@@ -43,6 +43,8 @@ export options
 ##
 ##    import nre except toSeq
 ##
+## For more details, see `nim-lang/Nim#7322 <https://github.com/nim-lang/Nim/issues/7322>`_
+##
 ## Licencing
 ## ~~~~~~~~~
 ##
