@@ -4,6 +4,12 @@ What is NRE?
 A regular expression library for Nim using PCRE to do the hard work. The top
 priorities are ergonomics & ease of use.
 
+For documentation on how to write patterns, there exists `the official PCRE
+pattern documentation
+<https://www.pcre.org/original/doc/html/pcrepattern.html>`_. You can also
+search the internet for a wide variety of third-party documentation and
+tools.
+
 Notes
 -----
 
@@ -17,6 +23,13 @@ work with it due to documented compiler limitations. As a workaround, use this:
 
    import nre except toSeq
 
+Licencing
+~~~~~~~~~
+
+PCRE has `some additional terms`_ that you must agree to in order to use
+this module.
+
+.. _`some additional terms`: http://pcre.sourceforge.net/license.txt
 
 Empty string splitting
 ~~~~~~~~~~~~~~~~~~~~~~
@@ -29,7 +42,6 @@ regex is empty (``""``), the same way as `Perl <https://ideone.com/dDMjmz>`__,
 This means that ``"123".split(re"") == @["1", "2", "3"]``, as opposed to the
 Nim stdlib's ``@["123"]``
 
-
 Types
 -----
 
@@ -40,7 +52,10 @@ Represents the pattern that things are matched against, constructed with
 comment".``
 
 ``pattern: string``
-    the string that was used to create the pattern.
+    the string that was used to create the pattern. For details on how
+    to write a pattern, please see `the official PCRE pattern
+    documentation.
+    <https://www.pcre.org/original/doc/html/pcrepattern.html>`_
 
 ``captureCount: int``
     the number of captures that the pattern has.
@@ -91,12 +106,17 @@ of the pattern:
 -  ``(*NO_STUDY)`` - turn off studying; study is enabled by default
 
 For more details on the leading option groups, see the `Option
-Setting <http://man7.org/linux/man-pages/man3/pcresyntax.3.html#OPTION_SETTING>`__
+Setting <http://man7.org/linux/man-pages/man3/pcresyntax.3.html#OPTION_SETTING>`_
 and the `Newline
-Convention <http://man7.org/linux/man-pages/man3/pcresyntax.3.html#NEWLINE_CONVENTION>`__
+Convention <http://man7.org/linux/man-pages/man3/pcresyntax.3.html#NEWLINE_CONVENTION>`_
 sections of the `PCRE syntax
-manual <http://man7.org/linux/man-pages/man3/pcresyntax.3.html>`__.
+manual <http://man7.org/linux/man-pages/man3/pcresyntax.3.html>`_.
 
+Some of these options are not part of PCRE and are converted by nre
+into PCRE flags. These include ``NEVER_UTF``, ``ANCHORED``,
+``DOLLAR_ENDONLY``, ``FIRSTLINE``, ``NO_AUTO_CAPTURE``,
+``JAVASCRIPT_COMPAT``, ``U``, ``NO_STUDY``. In other PCRE wrappers, you
+will need to pass these as seperate flags to PCRE.
 
 ``type RegexMatch* = object``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -119,19 +139,20 @@ execution. On failure, it is none, on success, it is some.
     -  ``"abc".match(re"(?<letter>\w)").get.captures["letter"] == "a"``
     -  ``"abc".match(re"(\w)\w").get.captures[-1] == "ab"``
 
-``captureBounds[]: Option[Slice[int]]``
+``captureBounds[]: HSlice[int, int]``
     gets the bounds of the given capture according to the same rules as
     the above. If the capture is not filled, then ``None`` is returned.
     The bounds are both inclusive.
 
     -  ``"abc".match(re"(\w)").get.captureBounds[0] == 0 .. 0``
+    -  ``0 in "abc".match(re"(\w)").get.captureBounds == true``
     -  ``"abc".match(re"").get.captureBounds[-1] == 0 .. -1``
     -  ``"abc".match(re"abc").get.captureBounds[-1] == 0 .. 2``
 
 ``match: string``
     the full text of the match.
 
-``matchBounds: Slice[int]``
+``matchBounds: HSlice[int, int]``
     the bounds of the match, as in ``captureBounds[]``
 
 ``(captureBounds|captures).toTable``
@@ -225,17 +246,17 @@ rules that Perl and Javascript use:
 
 ``proc replace*(str: string, pattern: Regex, subproc: proc (match: RegexMatch): string): string``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Replaces each match of Regex in the string with ``sub``, which should
+Replaces each match of Regex in the string with ``subproc``, which should
 never be or return ``nil``.
 
-If ``sub`` is a ``proc (RegexMatch): string``, then it is executed with
+If ``subproc`` is a ``proc (RegexMatch): string``, then it is executed with
 each match and the return value is the replacement value.
 
-If ``sub`` is a ``proc (string): string``, then it is executed with the
+If ``subproc`` is a ``proc (string): string``, then it is executed with the
 full text of the match and and the return value is the replacement
 value.
 
-If ``sub`` is a string, the syntax is as follows:
+If ``subproc`` is a string, the syntax is as follows:
 
 -  ``$$`` - literal ``$``
 -  ``$123`` - capture number ``123``
@@ -245,8 +266,8 @@ If ``sub`` is a string, the syntax is as follows:
 -  ``$#`` - first capture
 -  ``$0`` - full match
 
-If a given capture is missing, a ``ValueError`` exception is thrown.
-
+If a given capture is missing, ``IndexError`` thrown for un-named captures
+and ``KeyError`` for named captures.
 
 ``proc escapeRe*(str: string): string``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

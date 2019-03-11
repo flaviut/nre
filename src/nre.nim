@@ -21,7 +21,8 @@ export options
 ## What is NRE?
 ## ============
 ##
-## A regular expression library for Nim using PCRE to do the hard work.
+## A regular expression library for Nim using PCRE to do the hard work. The top
+## priorities are ergonomics & ease of use.
 ##
 ## For documentation on how to write patterns, there exists `the official PCRE
 ## pattern documentation
@@ -29,23 +30,37 @@ export options
 ## search the internet for a wide variety of third-party documentation and
 ## tools.
 ##
-## **Note**: If you love ``sequtils.toSeq`` we have bad news for you. This
-## library doesn't work with it due to documented compiler limitations. As
-## a workaround, use this:
+## Notes
+## -----
+##
+## Issues with toSeq
+## ~~~~~~~~~~~~~~~~~
+##
+## If you love ``sequtils.toSeq`` we have bad news for you. This library doesn't
+## work with it due to documented compiler limitations. As a workaround, use this:
 ##
 ## .. code-block:: nim
 ##
 ##    import nre except toSeq
 ##
-##
 ## Licencing
-## ---------
+## ~~~~~~~~~
 ##
 ## PCRE has `some additional terms`_ that you must agree to in order to use
 ## this module.
 ##
 ## .. _`some additional terms`: http://pcre.sourceforge.net/license.txt
 ##
+## Empty string splitting
+## ~~~~~~~~~~~~~~~~~~~~~~
+##
+## This library handles splitting with an empty string, i.e. if the splitting
+## regex is empty (``""``), the same way as `Perl <https://ideone.com/dDMjmz>`__,
+## `Javascript <http://jsfiddle.net/xtcbxurg/>`__, and `Java
+## <https://ideone.com/hYJuJ5>`__.
+##
+## This means that ``"123".split(re"") == @["1", "2", "3"]``, as opposed to the
+## Nim stdlib's ``@["123"]``
 runnableExamples:
   let vowels = re"[aeoui]"
 
@@ -541,8 +556,8 @@ proc matchImpl(str: string, pattern: Regex, start, endpos: int, flags: int): Opt
 
 proc match*(str: string, pattern: Regex, start = 0, endpos = int.high): Option[RegexMatch] =
   ## Like ` ``find(...)`` <#proc-find>`_, but anchored to the start of the
-  ## string.
-  ##
+  ## string. This means that ``"foo".match(re"f").isSome == true``, but
+  ## ``"foo".match(re"o").isSome == false``.
   runnableExamples:
     doAssert "foo".match(re"f").isSome
     doAssert "foo".match(re"o").isNone
