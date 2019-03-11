@@ -1,42 +1,20 @@
-UNMAINTAINED
-============
-
-`Use nre from the stdlib`_
-
-.. _`Use nre from the stdlib`: https://github.com/nim-lang/Nim/blob/master/lib/impure/nre.nim
-
 What is NRE?
 ============
 
-A regular expression library for Nim using PCRE to do the hard work.
+A regular expression library for Nim using PCRE to do the hard work. The top
+priority is ergonomics & ease of use.
 
-Why?
-----
+Notes
+-----
 
-The `re.nim <http://nim-lang.org/re.html>`__ module that
-`Nim <http://nim-lang.org/>`__ provides in its standard library is
-inadequate:
+If you love ``sequtils.toSeq`` we have bad news for you. This library doesn't
+work with it due to documented compiler limitations. As a workaround, use this:
 
--  It provides only a limited number of captures, while the underling
-   library (PCRE) allows an unlimited number.
+.. code-block:: nim
 
--  Instead of having one proc that returns both the bounds and
-   substring, it has one for the bounds and another for the substring.
-
--  If the splitting regex is empty (``""``), then it returns the input
-   string instead of following `Perl <https://ideone.com/dDMjmz>`__,
-   `Javascript <http://jsfiddle.net/xtcbxurg/>`__, and
-   `Java <https://ideone.com/hYJuJ5>`__'s precedent of returning a list
-   of each character (``"123".split(re"") == @["1", "2", "3"]``).
+   import nre except toSeq
 
 
-Other Notes
------------
-
-By default, NRE compiles it’s own PCRE. If this is undesirable, pass
-``-d:pcreDynlib`` to use whatever dynamic library is available on the
-system. This may have unexpected consequences if the dynamic library
-doesn’t have certain features enabled.
 Types
 -----
 
