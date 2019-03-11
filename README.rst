@@ -2,7 +2,7 @@ What is NRE?
 ============
 
 A regular expression library for Nim using PCRE to do the hard work. The top
-priority is ergonomics & ease of use.
+priorities are ergonomics & ease of use.
 
 Notes
 -----
