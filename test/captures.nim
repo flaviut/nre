@@ -1,5 +1,5 @@
 import unittest, optional_nonstrict
-include nre
+include ../src/nre
 
 suite "captures":
   test "map capture names to numbers":

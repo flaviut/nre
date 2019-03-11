@@ -1,5 +1,5 @@
 import unittest
-include nre
+include ../src/nre
 
 suite "Test NRE initialization":
   test "correct initialization":

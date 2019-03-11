@@ -1,4 +1,4 @@
-import nre, unittest
+import ../src/nre, unittest
 
 suite "escape strings":
   test "escape strings":

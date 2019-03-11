@@ -1,5 +1,5 @@
 import unittest, sequtils
-import nre except toSeq
+import ../src/nre except toSeq
 import optional_nonstrict
 import times, strutils
 

@@ -1,9 +1,9 @@
-import nre
-import init
-import captures
-import find
-import split
-import match
-import replace
+import ../src/nre
 import escape
+import find
+import init
+import match
 import misc
+import replace
+import split
+import captures

@@ -1,4 +1,5 @@
-include nre, unittest, optional_nonstrict
+import unittest, optional_nonstrict
+include ../src/nre
 
 suite "match":
   test "upper bound must be inclusive":

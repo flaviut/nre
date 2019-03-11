@@ -1,5 +1,5 @@
 import unittest, strutils
-include nre
+include ../src/nre
 
 suite "string splitting":
   test "splitting strings":
@@ -44,8 +44,9 @@ suite "string splitting":
     check("this will be split"           .split(re" ")     .join(",") == "this,will,be,split")
     check("this will be split"           .split(re" ", 3)  .join(",") == "this,will,be split")
     check("a.b"                          .split(re"\.")    .join(",") == "a,b")
-    check(""                             .split(re"")      .len       == 0)
-    check(":"                            .split(re"")      .len       == 1)
+
+    check(""                             .split(re"")      .len == 0)
+    check(":"                            .split(re"")      .len == 1)
 
   test "start position":
     check("abc".split(re"", start = 1) == @["b", "c"])

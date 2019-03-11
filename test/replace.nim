@@ -1,5 +1,5 @@
-include nre
 import unittest
+include ../src/nre
 
 suite "replace":
   test "replace with 0-length strings":
