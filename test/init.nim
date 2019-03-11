@@ -1,8 +1,8 @@
-import unittest, private/pcre
+import unittest
 include nre
 
 suite "Test NRE initialization":
-  test "correct intialization":
+  test "correct initialization":
     check(re("[0-9]+") != nil)
     check(re("(?i)[0-9]+") != nil)
 
